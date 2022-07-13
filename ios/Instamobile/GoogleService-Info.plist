@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>570616527377-mro0ujgqduqa6t9bejtk81ciess5ini0.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.570616527377-mro0ujgqduqa6t9bejtk81ciess5ini0</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDjmm39NRtdDdnmSw6r7YmgHCpCdBJtE3U</string>
+	<key>GCM_SENDER_ID</key>
+	<string>570616527377</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.theafricanbasket.iosclientapp</string>
+	<key>PROJECT_ID</key>
+	<string>africanbasket-341203</string>
+	<key>STORAGE_BUCKET</key>
+	<string>africanbasket-341203.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:570616527377:ios:7ab61dacb4f57e434d8fb0</string>
+	<key>DATABASE_URL</key>
+	<string>https://africanbasket-341203-default-rtdb.europe-west1.firebasedatabase.app</string>
+</dict>
+</plist>
