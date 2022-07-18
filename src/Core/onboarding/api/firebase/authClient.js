@@ -232,10 +232,13 @@ export const loginWithEmailAndPassword = async (email, password) => {
 }
 
 export const loginWithApple = (identityToken, nonce, appIdentifier) => {
+  console.log('Enter Auth Client...');
   const appleCredential = auth.AppleAuthProvider.credential(
     identityToken,
     nonce,
   )
+
+  console.log(appleCredential);
 
   return new Promise((resolve, _reject) => {
     signInWithCredential(appleCredential, appIdentifier).then(response => {

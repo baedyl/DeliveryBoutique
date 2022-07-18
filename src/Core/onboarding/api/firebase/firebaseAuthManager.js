@@ -160,6 +160,7 @@ const logout = user => {
 const loginOrSignUpWithApple = appConfig => {
   return new Promise(async (resolve, _reject) => {
     try {
+      console.log('Enter loginOrSignUpWithApple ---> ');
       const appleAuthRequestResponse = await appleAuth.performRequest({
         requestedOperation: AppleAuthRequestOperation.LOGIN,
         requestedScopes: [
@@ -168,29 +169,37 @@ const loginOrSignUpWithApple = appConfig => {
         ],
       })
 
-      const { identityToken, nonce } = appleAuthRequestResponse
+      console.log('Apple Auth request Response : ', appleAuthRequestResponse);
 
-      authAPI
-        .loginWithApple(identityToken, nonce, appConfig.appIdentifier)
-        .then(async response => {
-          if (response?.user) {
-            const newResponse = {
-              user: { ...response.user },
-              accountCreated: response.accountCreated,
-            }
-            handleSuccessfulLogin(
-              newResponse.user,
-              response.accountCreated,
-            ).then(response => {
-              // resolve(response);
-              resolve({
-                ...response,
+      const { identityToken, nonce } = appleAuthRequestResponse
+      console.log('Apple Token ---> ', identityToken);
+      // Ensure Apple returned a user identityToken
+      if (identityToken) {
+        authAPI
+          .loginWithApple(identityToken, nonce, appConfig.appIdentifier)
+          .then(async response => {
+            console.log('We got a response...');
+            if (response?.user) {
+              const newResponse = {
+                user: { ...response.user },
+                accountCreated: response.accountCreated,
+              }
+              handleSuccessfulLogin(
+                newResponse.user,
+                response.accountCreated,
+              ).then(response => {
+                // resolve(response);
+                resolve({
+                  ...response,
+                })
               })
-            })
-          } else {
-            resolve({ error: ErrorCode.appleAuthFailed })
-          }
-        })
+            } else {
+              resolve({ error: ErrorCode.appleAuthFailed })
+            }
+          })
+      }
+
+
     } catch (error) {
       console.log(error)
       resolve({ error: ErrorCode.appleAuthFailed })

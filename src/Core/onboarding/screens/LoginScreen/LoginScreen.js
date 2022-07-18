@@ -121,6 +121,7 @@ const LoginScreen = props => {
   const onAppleButtonPress = async () => {
     setLoading(true)
     authManager.loginOrSignUpWithApple(config).then(response => {
+      console.log('Apple Sign In return...');
       if (response?.user) {
         const user = response.user
         dispatch(setUserData({ user }))

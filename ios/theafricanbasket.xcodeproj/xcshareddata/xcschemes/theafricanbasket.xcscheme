@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "Instamobile.app"
-               BlueprintName = "Instamobile"
-               ReferencedContainer = "container:Instamobile.xcodeproj">
+               BuildableName = "theafricanbasket.app"
+               BlueprintName = "theafricanbasket"
+               ReferencedContainer = "container:theafricanbasket.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "InstamobileTests.xctest"
-               BlueprintName = "InstamobileTests"
-               ReferencedContainer = "container:Instamobile.xcodeproj">
+               BuildableName = "theafricanbasketTests.xctest"
+               BlueprintName = "theafricanbasketTests"
+               ReferencedContainer = "container:theafricanbasket.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "Instamobile.app"
-            BlueprintName = "Instamobile"
-            ReferencedContainer = "container:Instamobile.xcodeproj">
+            BuildableName = "theafricanbasket.app"
+            BlueprintName = "theafricanbasket"
+            ReferencedContainer = "container:theafricanbasket.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "Instamobile.app"
-            BlueprintName = "Instamobile"
-            ReferencedContainer = "container:Instamobile.xcodeproj">
+            BuildableName = "theafricanbasket.app"
+            BlueprintName = "theafricanbasket"
+            ReferencedContainer = "container:theafricanbasket.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

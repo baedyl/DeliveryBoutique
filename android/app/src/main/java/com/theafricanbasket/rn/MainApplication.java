@@ -1,4 +1,4 @@
-package com.instamobile;
+package com.theafricanbasket.rn;
 
 
 import android.app.Application;

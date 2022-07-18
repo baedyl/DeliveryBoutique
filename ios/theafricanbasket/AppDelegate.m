@@ -30,7 +30,7 @@ NSString * const kEXCurrentAPNSTokenDefaultsKey = @"EXCurrentAPNSTokenDefaultsKe
 
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
-                                                   moduleName:@"Instamobile"
+                                                   moduleName:@"theafricanbasket"
                                             initialProperties:nil];
 
   if (@available(iOS 13.0, *)) {
