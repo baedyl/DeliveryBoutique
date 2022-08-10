@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Image,
+  Alert,
 } from 'react-native'
 import { Globalstyles } from '../../styles/GlobalStyle'
 import { CustomButton, CartIcon } from '../../components'
@@ -17,8 +18,8 @@ import { useSelector } from 'react-redux'
 
 const ItemDetails = ({ route, navigation }) => {
   // const currentUser = useCurrentUser()
-//   const { user } = useSelector(state => state.rootReducer)
-  const user = useCurrentUser();
+  //   const { user } = useSelector(state => state.rootReducer)
+  const user = useCurrentUser()
   const [item, setItem] = useState(null)
   const [restaurant, setRestaurant] = useState(null)
   const [category, setCategory] = useState(null)
@@ -35,6 +36,14 @@ const ItemDetails = ({ route, navigation }) => {
 
   //function for adding item in cart in firebase
   function addToCart() {
+    if (!user?.id) {
+      // No user is logged in
+      Alert.alert('Info!', 'Veuillez créer un compte pour continuer')
+      navigation.navigate('LoginStack', {
+        screen: 'Login',
+      })
+      return
+    }
     const REFERENCE_URL = '/Cart/' + user?.userID + '/' + item.name
     const cartReference = firebase
       .app()

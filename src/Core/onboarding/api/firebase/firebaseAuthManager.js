@@ -10,6 +10,7 @@ import { storageAPI } from '../../../media'
 import * as authAPI from './authClient'
 import { updateUser } from '../../../users'
 import { ErrorCode } from '../../api/ErrorCode'
+import { reject } from 'lodash'
 
 const defaultProfilePhotoURL =
   'https://www.iosapptemplates.com/wp-content/uploads/2019/06/empty-avatar.jpg'
@@ -160,7 +161,7 @@ const logout = user => {
 const loginOrSignUpWithApple = appConfig => {
   return new Promise(async (resolve, _reject) => {
     try {
-      console.log('Enter loginOrSignUpWithApple ---> ');
+      console.log('Enter loginOrSignUpWithApple ---> ')
       const appleAuthRequestResponse = await appleAuth.performRequest({
         requestedOperation: AppleAuthRequestOperation.LOGIN,
         requestedScopes: [
@@ -169,16 +170,16 @@ const loginOrSignUpWithApple = appConfig => {
         ],
       })
 
-      console.log('Apple Auth request Response : ', appleAuthRequestResponse);
+      console.log('Apple Auth request Response : ', appleAuthRequestResponse)
 
       const { identityToken, nonce } = appleAuthRequestResponse
-      console.log('Apple Token ---> ', identityToken);
+      console.log('Apple Token ---> ', identityToken)
       // Ensure Apple returned a user identityToken
       if (identityToken) {
         authAPI
           .loginWithApple(identityToken, nonce, appConfig.appIdentifier)
           .then(async response => {
-            console.log('We got a response...');
+            console.log('We got a response...')
             if (response?.user) {
               const newResponse = {
                 user: { ...response.user },
@@ -198,10 +199,104 @@ const loginOrSignUpWithApple = appConfig => {
             }
           })
       }
-
-
     } catch (error) {
       console.log(error)
+      resolve({ error: ErrorCode.appleAuthFailed })
+    }
+  })
+}
+
+/**
+ * Fetches the credential state for the current user, if any, and updates state on completion.
+ */
+async function fetchAndUpdateCredentialState(updateCredentialStateForUser) {
+  if (user === null) {
+    updateCredentialStateForUser('N/A')
+  } else {
+    const credentialState = await appleAuth.getCredentialStateForUser(user)
+    if (credentialState === appleAuth.State.AUTHORIZED) {
+      updateCredentialStateForUser('AUTHORIZED')
+    } else {
+      updateCredentialStateForUser(credentialState)
+    }
+  }
+}
+
+const loginOrSignUpWithApple2 = appConfig => {
+  console.warn('Beginning Apple Authentication')
+
+  return new Promise(async (resolve, _reject) => {
+    // start a login request
+    try {
+      const appleAuthRequestResponse = await appleAuth.performRequest({
+        requestedOperation: AppleAuthRequestOperation.LOGIN,
+        requestedScopes: [
+          AppleAuthRequestScope.EMAIL,
+          AppleAuthRequestScope.FULL_NAME,
+        ],
+      })
+
+      console.log('appleAuthRequestResponse', appleAuthRequestResponse)
+
+      const {
+        user: newUser,
+        email,
+        nonce,
+        identityToken,
+        realUserStatus /* etc */,
+      } = appleAuthRequestResponse
+
+      user = newUser
+
+      fetchAndUpdateCredentialState(updateCredentialStateForUser).catch(error =>
+        updateCredentialStateForUser(`Error: ${error.code}`),
+      )
+
+      if (identityToken) {
+        // e.g. sign in with Firebase Auth using `nonce` & `identityToken`
+        console.log(nonce, identityToken)
+        authAPI
+          .loginWithApple(identityToken, nonce, appConfig.appIdentifier)
+          .then(async response => {
+            console.log('We got a response...')
+            if (response?.user) {
+              const newResponse = {
+                user: { ...response.user },
+                accountCreated: response.accountCreated,
+              }
+              handleSuccessfulLogin(
+                newResponse.user,
+                response.accountCreated,
+              ).then(response => {
+                // resolve(response);
+                resolve({
+                  ...response,
+                })
+              })
+            } else {
+              resolve({ error: ErrorCode.appleAuthFailed })
+            }
+          })
+      } else {
+        // no token - failed sign-in?
+        console.log('Failed Apple Sign In...')
+      }
+
+      if (realUserStatus === appleAuth.UserStatus.LIKELY_REAL) {
+        console.log("I'm a real person!")
+      }
+
+      console.warn(`Apple Authentication Completed, ${user}, ${email}`)
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'MainStack', params: { user } }],
+      })
+    } catch (error) {
+      if (error.code === appleAuth.Error.CANCELED) {
+        console.warn('User canceled Apple Sign in.')
+      } else {
+        console.error(error)
+      }
       resolve({ error: ErrorCode.appleAuthFailed })
     }
   })
@@ -245,7 +340,10 @@ const loginOrSignUpWithGoogle = appConfig => {
 }
 
 const loginOrSignUpWithFacebook = appConfig => {
-  Facebook.initializeAsync(appConfig.facebookIdentifier)
+  Facebook.initializeAsync({
+    appId: appConfig.facebookIdentifier,
+    // appName: "The-AfricanBasket",
+  })
 
   return new Promise(async (resolve, _reject) => {
     try {
@@ -283,6 +381,7 @@ const loginOrSignUpWithFacebook = appConfig => {
         resolve({ error: ErrorCode.fbAuthCancelled })
       }
     } catch (error) {
+      console.log(error)
       resolve({ error: ErrorCode.fbAuthFailed })
     }
   })
@@ -455,8 +554,8 @@ const getCurrentLocation = geolocation => {
   })
 }
 
-const deleteUser = (userID, callback) => {
-  authAPI.removeUser(userID).then(response => callback(response))
+const deleteUser = (userID) => {
+  authAPI.removeUser(userID).then(response => console.log(response))
 }
 
 const authManager = {

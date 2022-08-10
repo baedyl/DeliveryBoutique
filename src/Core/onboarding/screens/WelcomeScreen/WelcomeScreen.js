@@ -59,7 +59,7 @@ const WelcomeScreen = props => {
       .then(response => {
         if (response?.user) {
           const user = response.user
-          console.log('--- Welcome --- ', user);
+          console.log('--- Welcome --- ', user)
           dispatch(
             setUserData({
               user: response.user,
@@ -152,6 +152,16 @@ const WelcomeScreen = props => {
             : navigation.navigate('Signup')
         }}>
         {localized('Sign Up')}
+      </Button>
+      <Button
+        containerStyle={styles.loginContainer}
+        style={styles.loginText}
+        onPress={() => {
+          navigation.navigate('MainStack', {
+            screen: 'Home',
+          })
+        }}>
+        {localized('Visite')}
       </Button>
     </View>
   )

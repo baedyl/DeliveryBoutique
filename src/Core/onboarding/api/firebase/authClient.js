@@ -448,17 +448,20 @@ export const fetchAndStorePushTokenIfPossible = async user => {
 }
 
 export const removeUser = userID => {
+  console.log("Deleting user...");
   return new Promise(resolve => {
     usersRef
       .doc(userID)
       .delete()
       .then(() => {
+        console.log("User deleted...");
         auth()
           .currentUser.delete()
           .then(() => {
             resolve({ success: true })
           })
           .catch(error => {
+            console.log(error);
             let errorCode = ''
             if ((error.code = 'auth/requires-recent-login')) {
               errorCode = ErrorCode.requiresRecentLogin

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Alert,
   Image,
@@ -36,6 +36,18 @@ const LoginScreen = props => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const styles = dynamicStyles(theme, appearance)
+  let user = null
+
+  useEffect(() => {
+    if (!appleAuth.isSupported) return
+
+    return appleAuth.onCredentialRevoked(async () => {
+      console.warn('Credential Revoked')
+      fetchAndUpdateCredentialState(updateCredentialStateForUser).catch(error =>
+        updateCredentialStateForUser(`Error: ${error.code}`),
+      )
+    })
+  }, []) // passing in an empty array as the second argument ensures this is only ran once when component mounts initially.
 
   const onPressLogin = () => {
     setLoading(true)
@@ -121,7 +133,7 @@ const LoginScreen = props => {
   const onAppleButtonPress = async () => {
     setLoading(true)
     authManager.loginOrSignUpWithApple(config).then(response => {
-      console.log('Apple Sign In return...');
+      console.log('Apple Sign In return...')
       if (response?.user) {
         const user = response.user
         dispatch(setUserData({ user }))
@@ -200,26 +212,30 @@ const LoginScreen = props => {
           onPress={() => onPressLogin()}>
           {localized('Log In')}
         </Button>
-        <Text style={styles.orTextStyle}> {localized('OR')}</Text>
-        <Button
+
+        {/* <Text style={styles.orTextStyle}> {localized('OR')}</Text> */}
+
+        {/* <Button
           containerStyle={styles.facebookContainer}
           style={styles.facebookText}
           onPress={() => onFBButtonPress()}>
           {localized('Login With Facebook')}
-        </Button>
-        <IMGoogleSignInButton
+        </Button> */}
+
+        {/* <IMGoogleSignInButton
           containerStyle={styles.googleButtonStyle}
           onPress={onGoogleButtonPress}
-        />
-        {appleAuth.isSupported && (
+        /> */}
+
+        {/* {appleAuth.isSupported && (
           <AppleButton
             cornerRadius={25}
             style={styles.appleButtonContainer}
             buttonStyle={appleButtonStyle[appearance]}
             buttonType={AppleButton.Type.SIGN_IN}
-            onPress={() => onAppleButtonPress()}
+            onPress={() => onAppleButtonPress().then(() => console.log('Apple sign-in complete!'))}
           />
-        )}
+        )} */}
         {config.isSMSAuthEnabled && (
           <Button
             containerStyle={styles.phoneNumberContainer}

@@ -11,7 +11,7 @@ export const ConfigProvider = ({ children }) => {
   const config = {
     isSMSAuthEnabled: false,
     appIdentifier: `io.instamobile.rn.${Platform.OS}`,
-    facebookIdentifier: '285315185217069',
+    facebookIdentifier: '323707493061958',
     webClientId:
       '1099201876026-7p9f7c1ukg55958ck45fc0bn0luilka4.apps.googleusercontent.com',
     onboardingConfig: {

@@ -1,4 +1,5 @@
 {
   "name": "theafricanbasket",
-  "displayName": "theafricanbasket"
+  "displayName": "theafricanbasket",
+  "ios.usesAppleSignIn": true
 }

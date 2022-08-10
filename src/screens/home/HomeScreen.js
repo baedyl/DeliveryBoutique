@@ -95,9 +95,9 @@ export const HomeScreen = memo(props => {
 
   useEffect(() => {
     console.log('Current user : ', currentUser)
-    if (!currentUser?.id) {
-      return
-    }
+    // if (!currentUser?.id) {
+    //   return
+    // }
     let mounted = true
     let array = []
     console.log('restaurants ref: ', restaurantsReference)
