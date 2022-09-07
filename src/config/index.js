@@ -15,9 +15,9 @@ export const ConfigProvider = ({ children }) => {
     webClientId:
       '1099201876026-7p9f7c1ukg55958ck45fc0bn0luilka4.apps.googleusercontent.com',
     onboardingConfig: {
-      welcomeTitle: localized('The-AfricanBasket'),
+      welcomeTitle: localized('The-AfricanBasket-Partners'),
       welcomeCaption: localized(
-        'Welcome to the African Basket!',
+        'Bienvenue chez The-AfricanBasket!',
       ),
       walkthroughScreens: [
         {
@@ -31,7 +31,7 @@ export const ConfigProvider = ({ children }) => {
           icon: require('../assets/icons/login-icon.png'),
           title: localized('Création de compte'),
           description: localized(
-            'Connectez vous à la platforme et accédez aux boutiques',
+            'Connectez vous à la plateforme et accédez aux boutiques',
           ),
         },
         // {
@@ -71,7 +71,7 @@ export const ConfigProvider = ({ children }) => {
           icon: require('../assets/images/notification.png'),
           title: localized('Notifications'),
           description: localized(
-            'Recevez des notifications pour ne rien manquer',
+            'Activez des notifications pour ne rien manquer',
           ),
         },
       ],
@@ -107,47 +107,47 @@ export const ConfigProvider = ({ children }) => {
     ],
     signupFields: [
       {
-        displayName: localized('First Name'),
+        displayName: localized('Prénom'),
         type: 'ascii-capable',
         editable: true,
         regex: regexForNames,
         key: 'firstName',
-        placeholder: 'First Name',
+        placeholder: 'Prénom',
       },
       {
-        displayName: localized('Last Name'),
+        displayName: localized('Nom'),
         type: 'ascii-capable',
         editable: true,
         regex: regexForNames,
         key: 'lastName',
-        placeholder: 'Last Name',
+        placeholder: 'Nom',
       },
       {
-        displayName: localized('Username'),
+        displayName: localized('Surnom'),
         type: 'default',
         editable: true,
         regex: regexForNames,
         key: 'username',
-        placeholder: 'Username',
+        placeholder: 'Surnom',
         autoCapitalize: 'none',
       },
       {
-        displayName: localized('E-mail Address'),
+        displayName: localized('Adresse E-mail'),
         type: 'email-address',
         editable: true,
         regex: regexForNames,
         key: 'email',
-        placeholder: 'E-mail Address',
+        placeholder: 'Adresse E-mail',
         autoCapitalize: 'none',
       },
       {
-        displayName: localized('Password'),
+        displayName: localized('Mot de passe'),
         type: 'default',
         secureTextEntry: true,
         editable: true,
         regex: regexForNames,
         key: 'password',
-        placeholder: 'Password',
+        placeholder: 'Mot de passe',
         autoCapitalize: 'none',
       },
     ],

@@ -8,3 +8,6 @@ export { default as ResetPasswordScreen } from './screens/ResetPasswordScreen/Re
 export { default as DelayedLoginScreen } from './screens/DelayedLogin/DelayedLoginScreen'
 export { default as useCurrentUser } from './hooks/useCurrentUser'
 export { default as useCurrentOrder } from './hooks/useCurrentOrder'
+export { default as useCurrentBoutique } from './hooks/useCurrentBoutique'
+export { default as useCurrentClient } from './hooks/useCurrentClient'
+

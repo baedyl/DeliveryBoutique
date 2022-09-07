@@ -9,6 +9,12 @@ import { ConfigProvider } from './config'
 import { AuthProvider } from './Core/onboarding/hooks/useAuth'
 import { authManager } from './Core/onboarding/api'
 import InstamobileTheme from './theme'
+import Geocoder from 'react-native-geocoding';
+
+navigator.geolocation = require('@react-native-community/geolocation');
+
+// Initialize the module (needs to be done only once)
+Geocoder.init("AIzaSyBSWfme3FulpbRxcMzQ9JOaRUJPWIn2vKo"); // use a valid API key
 
 const store = configureStore()
 

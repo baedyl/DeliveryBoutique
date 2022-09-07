@@ -13,6 +13,7 @@ import {
   ScrollView,
 } from 'react-native'
 import Button from 'react-native-button'
+import { useDispatch } from 'react-redux'
 import DatePicker from 'react-native-date-picker'
 import { Globalstyles } from '../../styles/GlobalStyle'
 import { launchImageLibrary } from 'react-native-image-picker'
@@ -45,6 +46,8 @@ const updateSchema = yup.object({
 let newAddress = ''
 
 const UpdateProfile = ({ route, navigation }) => {
+  const dispatch = useDispatch()
+
   const [user, setUser] = useState({})
   const [image, setImage] = useState('')
   const [clicked, setClicked] = useState(false)
@@ -54,60 +57,78 @@ const UpdateProfile = ({ route, navigation }) => {
   const [open, setOpen] = useState(false)
 
   // create bucket storage reference to not yet existing image
-  const reference = storage().ref(user.id)
+  // const reference = storage().ref(user?.id)
 
   useEffect(() => {
     const { currentUser } = route.params
     setUser(currentUser)
-    setImage(currentUser.photoUrl)
+    setImage(currentUser?.photoUrl)
   }, [])
 
   //function for updating user information
   const updateUser = async (values, navigation, user, image, setClicked) => {
-    console.log('User Profile Picture ---> ', user.profilePictureURL)
-    console.log('User selected Image ---> ', image)
-    setClicked(true)
+    // console.log('User Profile Picture ---> ', user?.profilePictureURL)
+    // console.log('User selected Image ---> ', image)
+    // console.log('User Address ---> ', user.address)
+    // console.log('User New Address ---> ', newAddress)
     let userLocation = null
 
-    // Geocoding user's location
-    await Geocoder.from(newAddress !== '' ? newAddress : user.address)
-      .then(json => {
-        const location = json.results[0].geometry.location
-        console.log('location: ', location)
-        userLocation = {
-          latitude: location.lat,
-          longitude: location.lng,
-        }
-      })
-      .catch(error => console.warn(error))
-
     try {
+      // Object containing the fields to modify
+      let userToUpdate = {
+        addressSupplement: values.addressSupplement,
+        username: values.name,
+        firstName: values.firstname,
+        lastName: values.lastname,
+        address: newAddress ? newAddress : user.address ? user.address : '',
+        phone: values.phone,
+        birthdate: birthdate,
+      }
+
+      if (newAddress.length > 3) {
+        // Geocoding user's location
+        setClicked(true)
+        await Geocoder.from(newAddress !== '' ? newAddress : user?.address)
+          .then(json => {
+            if (location) {
+              const location = json.results[0].geometry.location
+              console.log('location: ', location)
+              userLocation = {
+                latitude: location.lat,
+                longitude: location.lng,
+              }
+              userToUpdate.location = userLocation
+            }
+          })
+          .catch(error => console.warn(error))
+      } else if (!values.addressSupplement) {
+        Alert.alert('Info!', 'Veuillez sélectionner une adresse valide')
+
+        return
+      }
+
+      // Do not update the birthdate if it was not modified
+      if (birthdate) {
+        userToUpdate.birthdate = birthdate
+      }
       if (
         image == 'default' ||
         image == undefined
         // || (image && image.includes('https:'))
       ) {
-        console.log('location', userLocation)
+        console.log('No profile picture selected')
+        console.log('birthdate : ', birthdate)
         usersRef
-          .doc(user.id)
-          .update({
-            // address: user.address,
-            addressSupplement: values.addressSupplement,
-            birthdate: birthdate,
-            username: values.name,
-            firstName: values.firstname,
-            lastName: values.lastname,
-            address: newAddress !== '' ? newAddress : user.address,
-            phone: values.phone,
-            location: userLocation,
-          })
-          .then(() => {
-            console.log('User updated!')
+          .doc(user?.id)
+          .update(userToUpdate)
+          .then(user => {
+            console.log('User updated! ', user)
           })
           .catch(e => {
             Alert.alert('Error', e.message)
           })
       } else {
+        console.log('Valid profile picture selected')
         // path to existing file on filesystem
         const filename = image.uri
         const uploadUri =
@@ -118,31 +139,25 @@ const UpdateProfile = ({ route, navigation }) => {
         await reference.putFile(uploadUri)
 
         const userProfilePictureUrl = await reference.getDownloadURL()
+        userToUpdate.profilePictureURL = userProfilePictureUrl
 
         usersRef
-          .doc(user.id)
-          .update({
-            // address: user.address,
-            addressSupplement: values.addressSupplement,
-            birthdate: birthdate,
-            username: values.name,
-            firstName: values.firstname,
-            lastName: values.lastname,
-            address: newAddress !== '' ? newAddress : user.address,
-            phone: values.phone,
-            location: userLocation,
-            profilePictureURL: userProfilePictureUrl,
-          })
-          .then(() => {
-            console.log('User updated!')
+          .doc(user?.id)
+          .update(userToUpdate)
+          .then(user => {
+            console.log('User updated! ', user)
+            if (user) {
+              dispatch(setUserData({ user }))
+            }
           })
           .catch(e => {
             Alert.alert('Error', e.message)
           })
       }
+      setClicked(false)
+      navigation.navigate('Account')
     } catch (e) {
       Alert.alert('Error', e.message)
-    } finally {
       setClicked(false)
       navigation.navigate('Account')
     }
@@ -212,8 +227,8 @@ const UpdateProfile = ({ route, navigation }) => {
                 name: user?.username,
                 firstname: user?.firstName,
                 lastname: user?.lastName,
-                phone: user.phone,
-                address: user.address,
+                phone: user?.phone,
+                address: user?.address,
                 addressSupplement: user?.addressSupplement || '',
               }}
               validationSchema={updateSchema}
@@ -231,7 +246,8 @@ const UpdateProfile = ({ route, navigation }) => {
                   {/* Username field */}
                   <TextInput
                     style={Globalstyles.input}
-                    placeholder={user.name}
+                    placeholder={user?.name || 'Pseudo'}
+                    placeholderTextColor="#000000"
                     onChangeText={props.handleChange('name')}
                     value={props.values.name}
                     onBlur={props.handleBlur('name')}
@@ -245,7 +261,8 @@ const UpdateProfile = ({ route, navigation }) => {
                   {/* First & last names fields */}
                   <TextInput
                     style={Globalstyles.input}
-                    placeholder={user.firstname}
+                    placeholder={user?.firstname || 'Prénom'}
+                    placeholderTextColor="#000000"
                     onChangeText={props.handleChange('firstname')}
                     value={props.values.firstname}
                     onBlur={props.handleBlur('firstname')}
@@ -257,7 +274,8 @@ const UpdateProfile = ({ route, navigation }) => {
                   )}
                   <TextInput
                     style={Globalstyles.input}
-                    placeholder={user.lastname}
+                    placeholder={user?.lastname || 'Nom'}
+                    placeholderTextColor="#000000"
                     onChangeText={props.handleChange('lastname')}
                     value={props.values.lastname}
                     onBlur={props.handleBlur('lastname')}
@@ -271,7 +289,10 @@ const UpdateProfile = ({ route, navigation }) => {
                   {/* Phone number field */}
                   <TextInput
                     style={Globalstyles.input}
-                    placeholder={user.phone}
+                    placeholder={
+                      (user?.phone && props.values.phone) || 'Téléphone'
+                    }
+                    placeholderTextColor="#000000"
                     onChangeText={props.handleChange('phone')}
                     value={props.values.phone}
                     keyboardType="numeric"
@@ -284,13 +305,17 @@ const UpdateProfile = ({ route, navigation }) => {
                   )}
 
                   <View style={Globalstyles.input}>
-                    <ScrollView horizontal={true}>
+                    <ScrollView keyboardShouldPersistTaps={'handled'} horizontal={true}>
                       <GooglePlacesAutocomplete
-                        placeholder={user.address || 'Adresse'}
+                        placeholder={user?.address || 'Adresse'}
                         value={props.values.address}
+                        textInputProps={{
+                          placeholderTextColor: "#000000",
+                        }}
                         query={{
                           key: GOOGLE_PLACES_API_KEY,
                           language: 'fr', // language of the results
+                          components: 'country:ma',
                         }}
                         onPress={(data, details = null) =>
                           (newAddress = data.description)
@@ -307,7 +332,12 @@ const UpdateProfile = ({ route, navigation }) => {
                   {/* Address Supplement field */}
                   <TextInput
                     style={Globalstyles.input}
-                    placeholder={user?.addressSupplement || 'Rue, N° Apt, ...'}
+                    placeholder={
+                      (user?.addressSupplement &&
+                        props.values.addressSupplement) ||
+                      'Rue, N° Apt, ...'
+                    }
+                    placeholderTextColor="#000000"
                     onChangeText={props.handleChange('addressSupplement')}
                     value={props.values.addressSupplement}
                     onBlur={props.handleBlur('addressSupplement')}
@@ -324,13 +354,15 @@ const UpdateProfile = ({ route, navigation }) => {
                   </Button>
                   <DatePicker
                     modal
-                    locale='fr'
+                    locale="fr"
                     open={open}
                     mode={'date'}
                     date={birthdate}
+                    confirmText={'Confirmer'}
+                    cancelText={'Annuler'}
                     onConfirm={date => {
-                      setOpen(false)
                       setBirthdate(date)
+                      setOpen(false)
                     }}
                     onCancel={() => {
                       setOpen(false)
@@ -341,6 +373,14 @@ const UpdateProfile = ({ route, navigation }) => {
                   <CustomButton
                     text="Sauvegarder"
                     onPressButton={props.handleSubmit}
+                  />
+
+                  {/* Cancel button */}
+                  <CustomButton
+                    text="Annuler"
+                    onPressButton={() => {
+                      navigation.navigate('Account')
+                    }}
                   />
                 </View>
               )}

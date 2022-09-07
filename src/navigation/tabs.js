@@ -3,7 +3,7 @@ import { View, Image, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
 import Svg, { Path } from 'react-native-svg';
 import { isIphoneX } from 'react-native-iphone-x-helper';
-import { HomeScreen } from '../screens/home/HomeScreen'
+import HomeScreen from '../screens/home/HomeScreen'
 import OrderScreen from '../screens/order/OrderScreen'
 import AccountScreen from '../screens/account/AccountScreen'
 import { COLORS, icons } from '../constants';

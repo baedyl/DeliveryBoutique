@@ -14,24 +14,41 @@ import { Globalstyles } from '../../styles/GlobalStyle'
 import { FONTS, SIZES, COLORS, icons, DATABASE_URL } from '../../constants'
 import SignUpScreen from '../../Core/onboarding/screens/SignupScreen/SignupScreen'
 import { Header, CustomButton } from '../../components'
-import { firebase } from '@react-native-firebase/database'
-// import { setUser } from '../redux/actions'
+import firestore from '@react-native-firebase/firestore'
 import { useDispatch } from 'react-redux'
 import { useCurrentUser } from '../../Core/onboarding'
 import { useAuth } from '../../Core/onboarding/hooks/useAuth'
+import { setUserData } from '../../Core/onboarding/redux/auth'
 import { useTheme, useTranslations } from 'dopenative'
 
 const AccountScreen = memo(props => {
   const { navigation } = props
-  const user = useCurrentUser()
+  const currentUser = useCurrentUser()
   const dispatch = useDispatch()
-  const [userInfo, setUserInfo] = useState(null)
+  const [user, setUser] = useState({})
+  const [birthdate, setBirthdate] = useState('')
   const authManager = useAuth()
   const { theme } = useTheme()
   const { localized } = useTranslations()
 
   useEffect(() => {
-    if (!user?.id) {
+    firestore()
+      .collection('users')
+      .doc(currentUser?.userID)
+      .onSnapshot(documentSnapshot => {
+        const userData = documentSnapshot.data()
+        // console.log('User data: ', userData)
+        setUser(userData)
+        const userBirthdate = userData?.birthdate
+        if (userBirthdate?.seconds) {
+          // We have a timestamp object
+          setBirthdate(new Date(userBirthdate.toDate()).toLocaleString("fr-FR", {dateStyle: "medium"}))
+        } else if (userBirthdate) {
+          setBirthdate(userBirthdate.toString())
+        }
+      })
+
+    if (!currentUser?.id) {
       // No user is logged in
       Alert.alert('Info!', 'Veuillez créer un compte pour continuer')
       navigation.navigate('LoginStack', {
@@ -39,28 +56,23 @@ const AccountScreen = memo(props => {
       })
       return
     }
-    const unsubscribe = navigation.addListener('focus', () => {
-      const currentUser = firebase.auth().currentUser
-      console.log('Current User: ', currentUser)
-      console.log('-- User: ', user)
-      if (currentUser) {
-        const userReference = firebase
-          .app()
-          .database(DATABASE_URL)
-          .ref('/Users/' + currentUser.uid)
-        userReference.on('value', snapshot => {
-          setUserInfo(snapshot.val())
-        })
-      }
-    })
+    const userBirthdate = user?.birthdate
+    console.log('typeof userBirthdate ---> ', typeof userBirthdate);
+    console.log('userBirthdate ---> ', userBirthdate);
+    if (typeof userBirthdate === 'object' && userBirthdate.seconds) {
+      // We have a timestamp object
+      setBirthdate(new Date(userBirthdate.toDate()).toLocaleString("fr-FR"))
+    } else if (userBirthdate) {
+      setBirthdate(userBirthdate.toString())
+    }
 
-    return unsubscribe
-  }, [navigation])
+  }, [navigation, user.id])
 
   const onLogout = useCallback(() => {
     try {
       console.log('Logging out...')
       authManager?.logout(user)
+      dispatch(setUserData({ user: null }))
       navigation.reset({
         index: 0,
         routes: [
@@ -72,7 +84,7 @@ const AccountScreen = memo(props => {
     } catch (error) {
       Alert.alert('Error', error.message)
     }
-  }, [user])
+  })
 
   const deleteAccount = useCallback(() => {
     try {
@@ -117,8 +129,10 @@ const AccountScreen = memo(props => {
                     source={icons.user}
                     resizeMode="center"
                     style={{
-                      width: '50%',
-                      height: '50%',
+                      width: 100,
+                      height: 100,
+                      borderRadius: 55
+                      
                     }}
                   />
                 </View>
@@ -128,6 +142,7 @@ const AccountScreen = memo(props => {
                     style={{
                       width: 100,
                       height: 100,
+                      borderRadius: 55
                     }}
                     source={{ uri: user?.profilePictureURL }}
                   />
@@ -205,7 +220,7 @@ const AccountScreen = memo(props => {
                   }}
                 />
                 <Text style={styles.contact_text}>
-                  {user?.birthdate?.toDate().toDateString() || ''}
+                  { birthdate }
                 </Text>
               </View>
 
@@ -248,7 +263,6 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 55,
-    marginTop: SIZES.padding * 4,
     backgroundColor: COLORS.white,
   },
   name: {

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   View,
   Text,
@@ -8,34 +8,95 @@ import {
   TouchableOpacity,
   FlatList,
 } from 'react-native'
-//import { setDeliver } from "../redux/actions";
-import { useDispatch } from 'react-redux'
-import { setOrderData } from '../../src/Core/onboarding/redux/auth'
-import { COLORS, SIZES, FONTS, icons } from '../constants'
+import { setBoutique, setOrder } from '../redux/actions'
+import { useDispatch, useSelector } from 'react-redux'
+import { firebase } from '@react-native-firebase/database'
+import { COLORS, SIZES, FONTS, icons, DATABASE_URL } from '../constants'
+import { useCurrentUser } from '../Core/onboarding'
 
-const OrderList = ({ navigation, orders, deleteOrder }) => {
+const OrderList = ({ navigation, orders, hasActiveOrder }) => {
   const dispatch = useDispatch()
+  const userInfo = useCurrentUser()
+
 
   function displayOrderItems(item) {
+    console.log('Delivered : ', item.delivered)
     var items = '\n'
-    for (let i = 1; i <= item.totalItems; i++)
+    for (let i = 1; i <= item.totalItems; i++) {
       items = items + item[`item${i}`] + '\n'
+    }
 
     return items
   }
 
-  function showOrderDelivery(order) {
-    // console.log("deliver_by ", order.deliver_by);
-    dispatch(setOrderData({ order }))
-    console.log('Order to show ---> ', order);
-    if (!order.accepted || !order.valid) {
-      Alert.alert(
-        'Info!',
-        'Veuillez patienter, votre commande est en cours de traitement',
-      )
-    } else {
-      navigation.navigate('OrderDelivery', { time: order.time + 10 })
+  function acceptOrder(item) {
+    console.log('hasActiveOrder: ', hasActiveOrder)
+    const orderReference = firebase
+        .app()
+        .database(DATABASE_URL)
+        .ref('/Order/' + item.oid)
+    // For the current order change status
+    if (item.valid) {
+      // setOrderPicked(true)
+      // Update order status to ready
+      orderReference
+      .update({
+        ready: true,
+      })
+      .then(() => console.log('Order is ready!'))
+      return
     }
+    // if (hasActiveOrder) {
+    //   Alert.alert(
+    //     'Info!',
+    //     "Veuillez livrer votre commande active avant d'accepter une autre.",
+    //   );
+    // } else {
+
+    // }
+    dispatch(setBoutique(item.boutique))
+    dispatch(setOrder(item))
+
+    if (userInfo) {
+      // Update order status
+      // Chage order's status and add deliver person's name
+      orderReference
+        .update({ valid: true })
+        .then(() => console.log('Boutique accepted order!'))
+
+      // navigation.navigate('Home')
+    }
+  }
+
+  function deleteOrder(item) {
+    Alert.alert('Info', 'Voulez vous vraiment annuler cette commande?', [
+      {
+        text: 'Non',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {
+        text: 'Oui',
+        onPress: () => {
+          // Update order status
+          if (userInfo) {
+            // Update order status
+            const orderReference = firebase
+              .app()
+              .database(DATABASE_URL)
+              .ref('/Order/' + item.oid)
+      
+            // Chage order's status and add deliver person's name
+            orderReference
+              .update({ cancelled: true })
+              .then(() => console.log('Boutique rejected order!'))
+              .catch(error => console.log(error.message))
+      
+            // navigation.navigate('Home')
+          }
+        },
+      },
+    ])
   }
 
   const renderItem = ({ item, index }) => {
@@ -60,6 +121,14 @@ const OrderList = ({ navigation, orders, deleteOrder }) => {
             </View>
           </View>
 
+          {/* Boutique */}
+          <View style={styles.total}>
+            <Text style={{ ...FONTS.body3, color: COLORS.black }}>Adresse</Text>
+            <Text style={{ ...FONTS.body3, color: COLORS.black }}>
+              {item?.address}
+            </Text>
+          </View>
+
           {/* Order Items */}
           <Text style={styles.order_items_text}>{displayOrderItems(item)}</Text>
 
@@ -74,25 +143,22 @@ const OrderList = ({ navigation, orders, deleteOrder }) => {
           {/* Track & Cancel buttons */}
           <View style={styles.buttons_container}>
             <TouchableOpacity
-              style={[
-                styles.buttons,
-                !item.delivered
-                  ? styles.button_enabled
-                  : styles.button_disabled,
-              ]}
-              disabled={item.delivered}
-              onPress={() => showOrderDelivery(item)}>
-              <Text style={styles.buttons_text}>Suivre</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={{ ...styles.buttons, backgroundColor: 'red' }}
-              disabled={item.delivered}
-              onPress={() => deleteOrder(item.oid)}>
+              disabled={item.delivered || item.cancelled || item.ready}
+              style={[styles.buttons, styles.button_enabled]}
+              onPress={() => acceptOrder(item)}>
               <Text style={styles.buttons_text}>
-                {!item.delivered ? 'Annuler' : 'Livrée'}
+                {!item.valid ? 'Accepter' : item.delivered ? 'Livrée' : 'Prêt'}
               </Text>
             </TouchableOpacity>
+
+            
+            {!item.valid || !item.ready ? (
+              <TouchableOpacity
+              style={{ ...styles.buttons, backgroundColor: 'red' }}
+              onPress={() => deleteOrder(item)}>
+              <Text style={styles.buttons_text}>Annuler</Text>
+            </TouchableOpacity>
+            ) : null}
           </View>
         </View>
       </View>
@@ -155,15 +221,15 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.radius,
     marginHorizontal: 20,
   },
+  buttons_text: {
+    ...FONTS.body4,
+    color: COLORS.white,
+  },
   button_disabled: {
     opacity: 0.3,
   },
   button_enabled: {
     opacity: 1,
-  },
-  buttons_text: {
-    ...FONTS.body4,
-    color: COLORS.white,
   },
   row: {
     paddingBottom: 8,

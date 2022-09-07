@@ -1,5 +1,6 @@
 {
-  "name": "theafricanbasket",
-  "displayName": "theafricanbasket",
-  "ios.usesAppleSignIn": true
+  "name": "theafricanbasketpartners",
+  "displayName": "theafricanbasketpartners",
+  "ios.usesAppleSignIn": true,
+  "ios.config.googleMapsApiKey": "AIzaSyBSWfme3FulpbRxcMzQ9JOaRUJPWIn2vKo"
 }

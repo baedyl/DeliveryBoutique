@@ -178,7 +178,7 @@ const LoginScreen = props => {
           onPress={() => navigation.goBack()}>
           <Image style={styles.backArrowStyle} source={theme.icons.backArrow} />
         </TouchableOpacity>
-        <Text style={styles.title}>{localized('Sign In')}</Text>
+        <Text style={styles.title}>{localized('Connexion')}</Text>
         <TextInput
           style={styles.InputContainer}
           placeholder={localized('E-mail')}
@@ -193,7 +193,7 @@ const LoginScreen = props => {
           style={styles.InputContainer}
           placeholderTextColor="#aaaaaa"
           secureTextEntry
-          placeholder={localized('Password')}
+          placeholder={localized('Mot de passe')}
           onChangeText={text => setPassword(text)}
           value={password}
           underlineColorAndroid="transparent"
@@ -203,14 +203,14 @@ const LoginScreen = props => {
           <Button
             style={styles.forgotPasswordText}
             onPress={() => onForgotPassword()}>
-            {localized('Forgot password?')}
+            {localized('Mot de passe oublié ?')}
           </Button>
         </View>
         <Button
           containerStyle={styles.loginContainer}
           style={styles.loginText}
           onPress={() => onPressLogin()}>
-          {localized('Log In')}
+          {localized('Se connecter')}
         </Button>
 
         {/* <Text style={styles.orTextStyle}> {localized('OR')}</Text> */}

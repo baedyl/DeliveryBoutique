@@ -23,6 +23,7 @@ import TermsOfUseView from '../../components/TermsOfUseView'
 import { useOnboardingConfig } from '../../hooks/useOnboardingConfig'
 import { useAuth } from '../../hooks/useAuth'
 import DatePicker from 'react-native-date-picker'
+import PushNotificationIOS from '../../../../../notifications';
 
 const SignupScreen = props => {
   const { navigation } = props
@@ -43,7 +44,7 @@ const SignupScreen = props => {
   const [countriesPickerData, setCountriesPickerData] = useState(null)
   const [countryModalVisible, setCountryModalVisible] = useState(false)
   const [phoneNumber, setPhoneNumber] = useState(false)
-  const [birthdate, setBirthdate] = useState(new Date())
+  // const [birthdate, setBirthdate] = useState(new Date())
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -72,6 +73,18 @@ const SignupScreen = props => {
     })
     return trimmedFields
   }
+
+  const setNotification = () => {
+    PushNotificationIOS.addNotificationRequest({
+      id: 'welcome',
+      title: 'Welcome!',
+      subtitle: 'Bienvenue!',
+      body: 'Bienvenue chez The-AfricanBasket',
+      sound: 'customSound.wav',
+      badge: 1,
+      fireDate: new Date(new Date().valueOf() + 10000).toISOString()
+    });
+  };
 
   const onRegister = async () => {
     const { error: usernameError } =
@@ -174,7 +187,7 @@ const SignupScreen = props => {
       photoFile: profilePictureFile,
       appIdentifier: config.appIdentifier,
       phone: userValidPhoneNumber,
-      birthdate: birthdate,
+      // birthdate: birthdate,
     }
     if (userDetails.username) {
       userDetails.username = userDetails.username?.toLowerCase()
@@ -187,6 +200,7 @@ const SignupScreen = props => {
         if (user) {
           dispatch(setUserData({ user }))
           Keyboard.dismiss()
+          setNotification()
           navigation.reset({
             index: 0,
             routes: [{ name: 'MainStack', params: { user } }],
@@ -229,38 +243,38 @@ const SignupScreen = props => {
     )
   }
 
-  const renderBirthdateInput = () => {
-    return (
-      <>
-        <Button onPress={() => setOpen(true)}>Date de naissance</Button>
-        <DatePicker
-          modal
-          open={open}
-          mode={"date"}
-          date={birthdate}
-          onConfirm={date => {
-            setOpen(false)
-            setBirthdate(date)
-          }}
-          onCancel={() => {
-            setOpen(false)
-          }}
-        />
-      </>
-    )
-  }
+  // const renderBirthdateInput = () => {
+  //   return (
+  //     <>
+  //       <Button onPress={() => setOpen(true)}>Date de naissance</Button>
+  //       <DatePicker
+  //         modal
+  //         open={open}
+  //         mode={"date"}
+  //         date={birthdate}
+  //         onConfirm={date => {
+  //           setOpen(false)
+  //           setBirthdate(date)
+  //         }}
+  //         onCancel={() => {
+  //           setOpen(false)
+  //         }}
+  //       />
+  //     </>
+  //   )
+  // }
 
   const renderSignupWithEmail = () => {
     return (
       <>
         {config.signupFields.map(renderInputField)}
         {renderPhoneInput()}
-        {renderBirthdateInput()}
+        {/* {renderBirthdateInput()} */}
         <Button
           containerStyle={styles.signupContainer}
           style={styles.signupText}
           onPress={() => onRegister()}>
-          {localized('Sign Up')}
+          {localized('Créer compte')}
         </Button>
       </>
     )

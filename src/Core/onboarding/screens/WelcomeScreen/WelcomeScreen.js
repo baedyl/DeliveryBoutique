@@ -136,7 +136,7 @@ const WelcomeScreen = props => {
                 screen: 'Login',
               })
         }}>
-        {localized('Log In')}
+        {localized('Connexion')}
       </Button>
       <Button
         containerStyle={styles.signupContainer}
@@ -151,7 +151,7 @@ const WelcomeScreen = props => {
               })
             : navigation.navigate('Signup')
         }}>
-        {localized('Sign Up')}
+        {localized('Créer un compte')}
       </Button>
       <Button
         containerStyle={styles.loginContainer}
